@@ -21,7 +21,7 @@ async fn main() {
 
     // Coxa: vecteur 1 | 5cm
     let start1 = Point3::new(0.0, 0.0, 0.0);
-    let end1   = Point3::new(coxa_length, 0.0, 0.0);
+    let end1   = Point3::new(coxa_length, 1.0, 0.0);
 
     // Femur: vecteur 2 | 6.3cm
     let start2 = end1;
@@ -29,7 +29,7 @@ async fn main() {
 
     // Tibia: vecteur 3 | 13cm
     let start3 = end2;
-    let end3 = Point3::new(coxa_length + femur_length + tibia_length, 0.0, 1.0);
+    let end3 = Point3::new(coxa_length + femur_length + tibia_length, 0.0, 0.0);
 
     // Boucle principale
     while window.render_with_camera(&mut camera).await {
