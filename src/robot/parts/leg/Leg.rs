@@ -11,6 +11,7 @@ pub struct Leg {
 
 impl Leg {
 
+    // Constructeur
     pub fn new(id: u32, coxa_length: f32, femur_length: f32, tibia_length: f32) -> Self {
         Self {
             id,
@@ -23,6 +24,7 @@ impl Leg {
         }
     }
 
+    // Getters & Setters
     pub fn get_id(&self) -> u32 {
         self.id
     }
