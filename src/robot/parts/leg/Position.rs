@@ -27,7 +27,7 @@ impl Position for Leg {
     }
 
     // Inverse Kinematics function
-    fn inverse_kinematics(&self, x: f32, y: f32, z: f32) -> Angles {
+    fn get_angles(&self, x: f32, y: f32, z: f32) -> Angles {
         
         let TPatte = Racine(x, y);
         let hypotenuse = Racine(z, TPatte - self.coxa_length);
