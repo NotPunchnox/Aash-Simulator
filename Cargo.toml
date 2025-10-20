@@ -6,3 +6,7 @@ author = "notpunchnox"
 
 [dependencies]
 kiss3d = "0.37.0"
+
+[lib]
+name = "Aash_simulator"
+path = "src/lib.rs"

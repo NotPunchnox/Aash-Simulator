@@ -4,6 +4,7 @@ use kiss3d::camera::ArcBall;
 use kiss3d::nalgebra::{Point3};
 use kiss3d::window::Window;
 
+
 #[kiss3d::main]
 async fn main() {
     // Fenêtre 3D

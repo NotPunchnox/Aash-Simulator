@@ -1,5 +1,4 @@
-use robot::parts::leg::Leg;
-
+use Aash_simulator::robot::parts::{Leg, LegPosition};
 
 fn main() {
     println!("Instance de test pour la conception d'une patte et la cinématique inverse.");

@@ -1,23 +1,28 @@
-struct Leg {
-    id: u32,
-    coxa_length: f32,
-    femur_length: f32,
-    tibia_length: f32,
+#[derive(Debug)]
+pub struct Leg {
+    pub id: u32,
+    pub coxa_length: f32,
+    pub femur_length: f32,
+    pub tibia_length: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
-pub impl Leg {
+impl Leg {
 
-    // Constructor
     pub fn new(id: u32, coxa_length: f32, femur_length: f32, tibia_length: f32) -> Self {
         Self {
             id,
             coxa_length,
             femur_length,
             tibia_length,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
         }
     }
 
-    // Getters
     pub fn get_id(&self) -> u32 {
         self.id
     }
@@ -31,7 +36,6 @@ pub impl Leg {
         self.tibia_length
     }
 
-    // Setters
     pub fn set_id(&mut self, id: u32) {
         self.id = id;
     }
@@ -44,6 +48,5 @@ pub impl Leg {
     pub fn set_tibia_length(&mut self, length: f32) {
         self.tibia_length = length;
     }
-    
 
 }
