@@ -2,7 +2,7 @@
 
 pub mod math;
 
-pub use math::radiansToDegrees;
+pub use math::radians_to_degrees;
 pub use math::atan;
-pub use math::AlKashi;
-pub use math::Racine;
+pub use math::al_kashi;
+pub use math::racine;

@@ -1,5 +1,5 @@
 [package]
-name = "Aash-simulator"
+name = "aash-simulator"
 version = "0.1.0"
 edition = "2024"
 author = "notpunchnox"
@@ -8,5 +8,5 @@ author = "notpunchnox"
 kiss3d = "0.37.0"
 
 [lib]
-name = "Aash_simulator"
+name = "aash_simulator"
 path = "src/lib.rs"
