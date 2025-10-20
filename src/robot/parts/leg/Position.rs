@@ -16,21 +16,21 @@ pub struct Angles {
 }
 
 pub trait LegPosition {
-    fn get_position(&self) -> (f32, f32, f32);
     fn set_position(&mut self, x: f32, y: f32, z: f32);
+    fn get_position(&self) -> Position;
     fn get_angles(&self, x: f32, y: f32, z: f32) -> Angles;
 }
 
 impl LegPosition for Leg {
 
-    fn get_position(&self) -> (f32, f32, f32) {
-        (self.x, self.y, self.z)
-    }
-
     fn set_position(&mut self, x: f32, y: f32, z: f32) {
         self.x = x;
         self.y = y;
         self.z = z;
+    }
+
+    fn get_position(&self) -> Position {
+        Position { x: self.x, y: self.y, z: self.z }
     }
 
     fn get_angles(&self, x: f32, y: f32, z: f32) -> Angles {
