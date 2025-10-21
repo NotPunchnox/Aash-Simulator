@@ -17,16 +17,17 @@ async fn main() {
     let at  = Point3::origin();
     let mut camera = ArcBall::new(eye, at);
 
+
     // Instanciation d'une patte;
     let leg  = Leg::new(1, 5.0, 6.3, 13.0);
 
     // Coxa: vecteur 1 | 5cm
-    let c1   = Point3::new(0.0, 0.0, 0.0);
-    let c2   = Point3::new(leg.get_coxa_length(), 1.0, 0.0);
+    let c1  = Point3::new(0.0, 0.0, 0.0);
+    let c2  = Point3::new(leg.get_coxa_length(), 1.0, 0.0);
 
     // Femur: vecteur 2 | 6.3cm
-    let f1   = c2;
-    let f2   = Point3::new(leg.get_coxa_length() + leg.get_femur_length(), 0.0, 0.0);
+    let f1  = c2;
+    let f2  = Point3::new(leg.get_coxa_length() + leg.get_femur_length(), 0.0, 0.0);
 
     // Tibia: vecteur 3 | 13cm
     let t1 = f2;
