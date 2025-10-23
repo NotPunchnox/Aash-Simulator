@@ -1,11 +1,16 @@
 extern crate kiss3d;
 
 use kiss3d::camera::ArcBall;
-use kiss3d::nalgebra::{Point3};
+use kiss3d::nalgebra::{MatrixCross, Point3};
 use kiss3d::window::Window;
 
 use aash_simulator::robot::parts::{Leg, LegPosition};
 
+
+fn create_leg() -> Leg {
+    // Créer une patte
+    Leg::new(1, 5.0, 6.3, 13.0)
+}
 
 #[kiss3d::main]
 async fn main() {
@@ -17,21 +22,38 @@ async fn main() {
     let at  = Point3::origin();
     let mut camera = ArcBall::new(eye, at);
 
+    // Coordonnées à atteindre
+    let x: f32 = 15.0;
+    let y: f32 =  1.0;
+    let z: f32 = -5.0;
 
-    // Instanciation d'une patte;
-    let leg  = Leg::new(1, 5.0, 6.3, 13.0);
+    // Instancier la patte
+    let mut leg = create_leg();
 
-    // Coxa: vecteur 1 | 5cm
-    let c1  = Point3::new(0.0, 0.0, 0.0);
-    let c2  = Point3::new(leg.get_coxa_length(), 1.0, 0.0);
+    // Positionner la patte aux positions cibles
+    LegPosition::set_position(&mut leg, x, y, z);
+    let matrix_points = leg.get_matrix_points().unwrap();
+    
 
-    // Femur: vecteur 2 | 6.3cm
-    let f1  = c2;
-    let f2  = Point3::new(leg.get_coxa_length() + leg.get_femur_length(), 0.0, 0.0);
-
-    // Tibia: vecteur 3 | 13cm
-    let t1 = f2;
-    let t2 = Point3::new(leg.get_coxa_length() + leg.get_femur_length() + leg.get_tibia_length(), 0.0, 0.0);
+    // Récupérer les coordonnées des articulations
+    let c1 = Point3::new(0.0, 0.0, 0.0); // Coxa base
+    let c2 = Point3::new(
+        matrix_points.coxa.0 as f32,
+        matrix_points.coxa.1 as f32,
+        matrix_points.coxa.2 as f32,
+    );
+    let f1 = c2; // Femur base
+    let f2 = Point3::new(
+        matrix_points.femur.0 as f32,
+        matrix_points.femur.1 as f32,
+        matrix_points.femur.2 as f32,
+    );
+    let t1 = f2; // Tibia base
+    let t2 = Point3::new(
+        matrix_points.tibia.0 as f32,
+        matrix_points.tibia.1 as f32,
+        matrix_points.tibia.2 as f32,
+    );
 
     // Boucle principale
     while window.render_with_camera(&mut camera).await {

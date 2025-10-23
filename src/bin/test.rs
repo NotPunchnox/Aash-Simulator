@@ -21,7 +21,7 @@ fn main() {
             println!("Theta 4 (Fémur) : {:.2}°", angles.theta4);
             println!("Theta 5 (Tibia) : {:.2}°", angles.theta5);
         }
-        None => {
+        _none => {
             println!("Erreur: position cible non atteignable !");
             return;
         }
@@ -50,7 +50,7 @@ fn main() {
             println!("Longueurs définies: Coxa: {:.2} | Fémur: {:.2} | Tibia: {:.2}", 
                      leg.coxa_length, leg.femur_length, leg.tibia_length);
         }
-        None => {
+        _none => {
             println!("Erreur: impossible de calculer les coordonnées des articulations !");
         }
     }
