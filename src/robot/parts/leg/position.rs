@@ -10,7 +10,7 @@ pub struct Position {
 
 #[derive(Debug, Clone)]
 pub struct Angles {
-    pub theta1: f32,  // Coxa - angle azimuthal (rotation autour de Z)
+    pub theta1: f32,  // Coxa - angle azimuthal (rotation autour de Y)
     pub theta4: f32,  // Fémur - angle d'élévation
     pub theta5: f32,  // Tibia - angle entre fémur et tibia
 }
@@ -25,7 +25,6 @@ pub struct MatrixPoint {
 }
 
 impl MatrixPoint {
-    /// Crée un nouveau MatrixPoint avec toutes les coordonnées
     pub fn new(
         coxa: (f32, f32, f32),
         femur: (f32, f32, f32),
@@ -118,20 +117,19 @@ impl LegPosition for Leg {
     }
 
     /// Calcule les angles des articulations en utilisant la cinématique inverse
-    /// Basé sur le calcul du programme trigo-calc
-    /// Convention: X=avant/arrière, Y=gauche/droite, Z=haut/bas (vertical)
+    /// Convention: X=devant/derrière, Y=haut/bas (hauteur), Z=gauche/droite
     fn get_angles(&self) -> Option<Angles> {
         let position = self.get_position();
         
-        // Distance horizontale projetée (dans le plan XY)
-        let tpatte = (position.x * position.x + position.y * position.y).sqrt();
+        // Distance horizontale projetée (dans le plan XZ)
+        let tpatte = (position.x * position.x + position.z * position.z).sqrt();
         
-        // Theta 1: angle azimuthal du coxa (rotation autour de Z)
-        let theta1 = position.y.atan2(position.x);
+        // Theta 1: angle azimuthal du coxa (rotation autour de Y)
+        let theta1 = position.z.atan2(position.x);
         
         // Distance horizontale réelle après rotation du coxa
         let horizontal_dist = tpatte - self.coxa_length;
-        let h = (position.z * position.z + horizontal_dist * horizontal_dist).sqrt();
+        let h = (position.y * position.y + horizontal_dist * horizontal_dist).sqrt();
         
         // Application de la loi des cosinus pour trouver l'angle entre fémur et tibia
         let cos_theta5 = (self.femur_length * self.femur_length 
@@ -151,9 +149,9 @@ impl LegPosition for Leg {
         let cos_angle_au_coxa = (self.femur_length * self.femur_length + h * h  - self.tibia_length * self.tibia_length) / (2.0 * self.femur_length * h);
         let angle_au_coxa = cos_angle_au_coxa.acos();
         
-        // Angle d'élévation du vecteur cible par rapport au plan horizontal (XY)
+        // Angle d'élévation du vecteur cible par rapport au plan horizontal (XZ)
         let target_horiz_dist = tpatte - self.coxa_length;
-        let elev_angle = position.z.atan2(target_horiz_dist);
+        let elev_angle = position.y.atan2(target_horiz_dist);
         
         let theta4 = elev_angle + angle_au_coxa;
         
@@ -165,7 +163,7 @@ impl LegPosition for Leg {
     }
 
     /// Calcule toutes les coordonnées 3D des articulations
-    /// Convention: X=avant/arrière, Y=gauche/droite, Z=haut/bas (vertical)
+    /// Convention: X=devant/derrière, Y=haut/bas (hauteur), Z=gauche/droite
     fn get_matrix_points(&self) -> Option<MatrixPoint> {
         let position = self.get_position();
         let angles = self.get_angles()?;
@@ -174,22 +172,22 @@ impl LegPosition for Leg {
         let theta1 = angles.theta1.to_radians();
         let theta4 = angles.theta4.to_radians();
         
-        // Origine: base du coxa (dans le plan XY, Z=0)
+        // Origine: base du coxa (dans le plan XZ, Y=0)
         let coxa = (0.0, 0.0, 0.0);
         
-        // Extrémité du coxa après rotation theta1 dans le plan horizontal (XY)
+        // Extrémité du coxa après rotation theta1 dans le plan horizontal (XZ)
         let femur = (
             self.coxa_length * theta1.cos(),
-            self.coxa_length * theta1.sin(),
-            0.0
+            0.0,
+            self.coxa_length * theta1.sin()
         );
         
         // Extrémité du fémur: extension avec élévation theta4
         // Le fémur s'étend dans le plan vertical orienté par theta1
         let tibia = (
             femur.0 + self.femur_length * theta1.cos() * theta4.cos(),
-            femur.1 + self.femur_length * theta1.sin() * theta4.cos(),
-            femur.2 + self.femur_length * theta4.sin()  // Z augmente avec l'élévation
+            femur.1 + self.femur_length * theta4.sin(),  // Y augmente avec l'élévation
+            femur.2 + self.femur_length * theta1.sin() * theta4.cos()
         );
         
         // Position finale: extension du tibia vers la cible

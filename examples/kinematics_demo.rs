@@ -53,7 +53,12 @@ fn main() {
     println!("║ Test de cinématique inverse avec la structure MatrixPoint  ║");
     println!("╚════════════════════════════════════════════════════════════╝");
     
-    // Créer une patte avec les dimensions du programme trigo-calc
+    println!("\nConvention des axes:");
+    println!("  X = devant/derrière");
+    println!("  Y = haut/bas (hauteur)");
+    println!("  Z = gauche/droite");
+    
+    // Créer une patte ( dimensions en cm )
     let mut leg = Leg::new(1, 5.0, 6.3, 13.0);
     
     println!("\nDimensions de la patte:");
@@ -62,7 +67,7 @@ fn main() {
     println!("  Tibia : {:.2} cm", leg.tibia_length);
     println!("  Total : {:.2} cm", leg.coxa_length + leg.femur_length + leg.tibia_length);
     
-    // Test 1: Position du programme trigo-calc
+    // Test 1: Position du programme
     test_position(&mut leg, 20.0, -5.0, -5.0);
     
     // Test 2: Position simple sur l'axe X

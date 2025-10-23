@@ -23,10 +23,9 @@ async fn main() {
     let mut camera = ArcBall::new(eye, at);
 
     // Coordonnées à atteindre
-    // Convention moteur de jeu: X=avant/arrière, Y=gauche/droite, Z=haut/bas
-    let x: f32 = 15.0;  // Avant/Arrière
-    let y: f32 =  1.0;  // Gauche/Droite
-    let z: f32 = -5.0;  // Haut/Bas (vertical)
+    let x: f32 = 15.0;
+    let y: f32 = -5.0;
+    let z: f32 =  1.0;
 
     // Instancier la patte
     let mut leg = create_leg();
@@ -35,7 +34,7 @@ async fn main() {
     LegPosition::set_position(&mut leg, x, y, z);
     let matrix_points = leg.get_matrix_points().unwrap();
     
-    // Afficher les coordonnées des articulations (MatrixPoint.print_summary())
+    // Afficher les coordonnées des articulations
     matrix_points.print_summary();
 
     // Boucle principale
@@ -49,9 +48,8 @@ async fn main() {
         window.draw_line(&t1, &t2, &Point3::new(0.0, 0.0, 1.0)); // Tibia
         window.draw_line(&e1, &e2, &Point3::new(1.0, 1.0, 0.0)); // End
 
-        // Axes de repère (convention moteur de jeu: X=rouge, Y=vert, Z=bleu vertical)
-        window.draw_line(&Point3::origin(), &Point3::new(50.0, 0.0, 0.0), &Point3::new(1.0, 0.0, 0.0)); // X (rouge)
-        window.draw_line(&Point3::origin(), &Point3::new(0.0, 50.0, 0.0), &Point3::new(0.0, 1.0, 0.0)); // Y (vert)
-        window.draw_line(&Point3::origin(), &Point3::new(0.0, 0.0, 50.0), &Point3::new(0.0, 0.0, 1.0)); // Z (bleu, vertical)
+        window.draw_line(&Point3::origin(), &Point3::new(50.0, 0.0, 0.0), &Point3::new(1.0, 0.0, 0.0)); // X (rouge, devant/derrière)
+        window.draw_line(&Point3::origin(), &Point3::new(0.0, 50.0, 0.0), &Point3::new(0.0, 1.0, 0.0)); // Y (vert, hauteur - vertical)
+        window.draw_line(&Point3::origin(), &Point3::new(0.0, 0.0, 50.0), &Point3::new(0.0, 0.0, 1.0)); // Z (bleu, gauche/droite)
     }
 }

@@ -3,10 +3,10 @@ use aash_simulator::robot::parts::{Leg, LegPosition};
 fn main() {
     println!("===== Instance de test pour la conception d'une patte et la cinématique inverse. =====\n");
 
-    // Créer une patte avec les dimensions du programme trigo-calc
+    // Créer une patte ( dimensions en cm )
     let mut leg = Leg::new(1, 5.0, 6.3, 13.0);
     
-    // Définir une position cible (comme dans main.rs: x=20, y=-5, z=-5)
+    // Définir une position cible
     LegPosition::set_position(&mut leg, 20.0, -5.0, -5.0);
 
     let position = leg.get_position();
