@@ -1,7 +1,7 @@
 extern crate kiss3d;
 
 use kiss3d::camera::ArcBall;
-use kiss3d::nalgebra::{MatrixCross, Point3};
+use kiss3d::nalgebra::{Point3};
 use kiss3d::window::Window;
 
 use aash_simulator::robot::parts::{Leg, LegPosition};
@@ -34,6 +34,8 @@ async fn main() {
     LegPosition::set_position(&mut leg, x, y, z);
     let matrix_points = leg.get_matrix_points().unwrap();
     
+    // Afficher les coordonnées des articulations (MatrixPoint.print_summary())
+    matrix_points.print_summary();
 
     // Récupérer les coordonnées des articulations
     let c1 = Point3::new(0.0, 0.0, 0.0); // Coxa base

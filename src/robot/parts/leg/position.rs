@@ -67,6 +67,33 @@ impl MatrixPoint {
     pub fn total_length(&self) -> f32 {
         self.coxa_length() + self.femur_length() + self.tibia_length()
     }
+    /// Affiche toutes les coordonnées des articulations
+    pub fn print_coordinates(&self) {
+        println!("\n=== Coordonnées des articulations (MatrixPoint) ===");
+        println!("Coxa   : X: {:.2} | Y: {:.2} | Z: {:.2}", 
+                 self.coxa.0, self.coxa.1, self.coxa.2);
+        println!("Fémur  : X: {:.2} | Y: {:.2} | Z: {:.2}", 
+                 self.femur.0, self.femur.1, self.femur.2);
+        println!("Tibia  : X: {:.2} | Y: {:.2} | Z: {:.2}", 
+                 self.tibia.0, self.tibia.1, self.tibia.2);
+        println!("Fin    : X: {:.2} | Y: {:.2} | Z: {:.2}", 
+                 self.end.0, self.end.1, self.end.2);
+    }
+
+    /// Affiche un résumé des longueurs des segments
+    pub fn print_lengths(&self) {
+        println!("\n=== Longueurs des segments calculées ===");
+        println!("Coxa   : {:.2} cm", self.coxa_length());
+        println!("Fémur  : {:.2} cm", self.femur_length());
+        println!("Tibia  : {:.2} cm", self.tibia_length());
+        println!("Total  : {:.2} cm", self.total_length());
+    }
+
+    /// Affiche un résumé complet (coordonnées + longueurs)
+    pub fn print_summary(&self) {
+        self.print_coordinates();
+        self.print_lengths();
+    }
 }
 
 pub trait LegPosition {
