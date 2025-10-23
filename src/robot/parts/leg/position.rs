@@ -1,24 +1,79 @@
-use crate::robot::utils::*;
 use super::leg::Leg;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Position {
     pub x: f32,
     pub y: f32,
     pub z: f32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Angles {
-    pub coxa_angle: f32,
-    pub femur_angle: f32,
-    pub tibia_angle: f32,
+    pub theta1: f32,  // Coxa - angle azimuthal (rotation autour de Z)
+    pub theta4: f32,  // Fémur - angle d'élévation
+    pub theta5: f32,  // Tibia - angle entre fémur et tibia
+}
+
+/// Structure pour stocker toutes les coordonnées 3D des articulations
+#[derive(Debug, Clone)]
+pub struct MatrixPoint {
+    pub coxa: (f32, f32, f32),
+    pub femur: (f32, f32, f32),
+    pub tibia: (f32, f32, f32),
+    pub end: (f32, f32, f32),
+}
+
+impl MatrixPoint {
+    /// Crée un nouveau MatrixPoint avec toutes les coordonnées
+    pub fn new(
+        coxa: (f32, f32, f32),
+        femur: (f32, f32, f32),
+        tibia: (f32, f32, f32),
+        end: (f32, f32, f32),
+    ) -> Self {
+        Self {
+            coxa,
+            femur,
+            tibia,
+            end,
+        }
+    }
+
+    /// Calcule la longueur du segment Coxa (de coxa à femur)
+    pub fn coxa_length(&self) -> f32 {
+        let dx = self.femur.0 - self.coxa.0;
+        let dy = self.femur.1 - self.coxa.1;
+        let dz = self.femur.2 - self.coxa.2;
+        (dx * dx + dy * dy + dz * dz).sqrt()
+    }
+
+    /// Calcule la longueur du segment Fémur (de femur à tibia)
+    pub fn femur_length(&self) -> f32 {
+        let dx = self.tibia.0 - self.femur.0;
+        let dy = self.tibia.1 - self.femur.1;
+        let dz = self.tibia.2 - self.femur.2;
+        (dx * dx + dy * dy + dz * dz).sqrt()
+    }
+
+    /// Calcule la longueur du segment Tibia (de tibia à end)
+    pub fn tibia_length(&self) -> f32 {
+        let dx = self.end.0 - self.tibia.0;
+        let dy = self.end.1 - self.tibia.1;
+        let dz = self.end.2 - self.tibia.2;
+        (dx * dx + dy * dy + dz * dz).sqrt()
+    }
+
+    /// Calcule la longueur totale de la patte
+    pub fn total_length(&self) -> f32 {
+        self.coxa_length() + self.femur_length() + self.tibia_length()
+    }
 }
 
 pub trait LegPosition {
     fn set_position(&mut self, x: f32, y: f32, z: f32);
     fn get_position(&self) -> Position;
-    fn get_angles(&self) -> Angles;
+    fn get_angles(&self) -> Option<Angles>;
+    fn get_matrix_points(&self) -> Option<MatrixPoint>;
 }
 
 impl LegPosition for Leg {
@@ -33,23 +88,95 @@ impl LegPosition for Leg {
         Position { x: self.x, y: self.y, z: self.z }
     }
 
-    fn get_angles(&self) -> Angles {
+    /// Calcule les angles des articulations en utilisant la cinématique inverse
+    /// Basé sur le calcul du programme trigo-calc
+    fn get_angles(&self) -> Option<Angles> {
         let position = self.get_position();
-        let tpatte = racine(position.x, position.y);
-        let hypotenuse = racine(position.z, tpatte - self.coxa_length);
-
-        let angle_a = radians_to_degrees(atan(tpatte - self.coxa_length / position.z));
-        let angle_b = al_kashi(self.femur_length, hypotenuse, self.tibia_length);
-        let angles_femur = angle_a + angle_b;
-
-        let angles_tibia = al_kashi(self.tibia_length, self.femur_length, hypotenuse);
-        let angles_coxa = radians_to_degrees(atan(position.y / position.x)) + 90.0;
         
-        Angles {
-            coxa_angle: angles_coxa,
-            femur_angle: angles_femur,
-            tibia_angle: angles_tibia,
+        // Distance horizontale projetée
+        let tpatte = (position.x * position.x + position.y * position.y).sqrt();
+        
+        // Theta 1: angle azimuthal du coxa (rotation autour de Z)
+        let theta1 = position.y.atan2(position.x);
+        
+        // Distance horizontale réelle après rotation du coxa
+        let horizontal_dist = tpatte - self.coxa_length;
+        let h = (position.z * position.z + horizontal_dist * horizontal_dist).sqrt();
+        
+        // Application de la loi des cosinus pour trouver l'angle entre fémur et tibia
+        let cos_theta5 = (self.femur_length * self.femur_length 
+                         + self.tibia_length * self.tibia_length 
+                         - h * h) / (2.0 * self.femur_length * self.tibia_length);
+        
+        // Vérifier que le calcul est valide (position atteignable)
+        if cos_theta5 > 1.0 || cos_theta5 < -1.0 {
+            // Position non atteignable
+            return None;
         }
+        
+        // Angle entre fémur et tibia
+        let theta5 = cos_theta5.acos();
+        
+        // Calcul de l'angle du fémur ((a² + b² - c²) / (2ab))
+        let cos_angle_au_coxa = (self.femur_length * self.femur_length + h * h  - self.tibia_length * self.tibia_length) / (2.0 * self.femur_length * h);
+        let angle_au_coxa = cos_angle_au_coxa.acos();
+        
+        // Angle d'élévation du vecteur cible par rapport au coxa
+        let target_horiz_dist = tpatte - self.coxa_length;
+        let elev_angle = position.z.atan2(target_horiz_dist);
+        
+        let theta4 = elev_angle + angle_au_coxa;
+        
+        Some(Angles {
+            theta1: theta1.to_degrees(),
+            theta4: theta4.to_degrees(),
+            theta5: theta5.to_degrees(),
+        })
+    }
+
+    /// Calcule toutes les coordonnées 3D des articulations
+    fn get_matrix_points(&self) -> Option<MatrixPoint> {
+        let position = self.get_position();
+        let angles = self.get_angles()?;
+        
+        // Convertir les angles en radians pour les calculs
+        let theta1 = angles.theta1.to_radians();
+        let theta4 = angles.theta4.to_radians();
+        
+        // Origine: base du coxa
+        let coxa = (0.0, 0.0, 0.0);
+        
+        // Extrémité du coxa après rotation theta1
+        let femur = (
+            self.coxa_length * theta1.cos(),
+            self.coxa_length * theta1.sin(),
+            0.0
+        );
+        
+        // Extrémité du fémur: extension dans le plan vertical orienté par theta1
+        let tibia = (
+            femur.0 + self.femur_length * theta1.cos() * theta4.cos(),
+            femur.1 + self.femur_length * theta1.sin() * theta4.cos(),
+            femur.2 + self.femur_length * theta4.sin()
+        );
+        
+        // Position finale: extension du tibia vers la cible
+        // Normalisation du vecteur tibia->cible pour respecter la longueur TIBIA
+        let to_target_x = position.x - tibia.0;
+        let to_target_y = position.y - tibia.1;
+        let to_target_z = position.z - tibia.2;
+        let dist_to_target = (to_target_x * to_target_x 
+                            + to_target_y * to_target_y 
+                            + to_target_z * to_target_z).sqrt();
+        
+        // Vecteur tibia normalisé à la longueur exacte
+        let end = (
+            tibia.0 + self.tibia_length * to_target_x / dist_to_target,
+            tibia.1 + self.tibia_length * to_target_y / dist_to_target,
+            tibia.2 + self.tibia_length * to_target_z / dist_to_target
+        );
+        
+        Some(MatrixPoint::new(coxa, femur, tibia, end))
     }
 
 }
