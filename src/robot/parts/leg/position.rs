@@ -1,4 +1,5 @@
 use super::leg::Leg;
+use kiss3d::nalgebra::Point3;
 
 #[derive(Debug, Clone)]
 pub struct Position {
@@ -97,6 +98,7 @@ impl MatrixPoint {
 }
 
 pub trait LegPosition {
+    fn get_leg_joints(&self) -> (Point3<f32>, Point3<f32>, Point3<f32>, Point3<f32>, Point3<f32>, Point3<f32>, Point3<f32>, Point3<f32>);
     fn set_position(&mut self, x: f32, y: f32, z: f32);
     fn get_position(&self) -> Position;
     fn get_angles(&self) -> Option<Angles>;
@@ -204,6 +206,48 @@ impl LegPosition for Leg {
         );
         
         Some(MatrixPoint::new(coxa, femur, tibia, end))
+    }
+
+    fn get_leg_joints(&self) -> (
+        Point3<f32>, // c1
+        Point3<f32>, // c2
+        Point3<f32>, // f1
+        Point3<f32>, // f2
+        Point3<f32>, // t1
+        Point3<f32>, // t2
+        Point3<f32>, // e1
+        Point3<f32>, // e2
+    ) {
+        // Récupérer les coordonnées des articulations
+
+        let matrix_points = self.get_matrix_points().unwrap();
+
+        let c1 = Point3::new(0.0, 0.0, 0.0); // Coxa base
+        let c2 = Point3::new(
+            matrix_points.coxa.0 as f32,
+            matrix_points.coxa.1 as f32,
+            matrix_points.coxa.2 as f32,
+        );
+        let f1 = c2; // Femur base
+        let f2 = Point3::new(
+            matrix_points.femur.0 as f32,
+            matrix_points.femur.1 as f32,
+            matrix_points.femur.2 as f32,
+        );
+        let t1 = f2; // Tibia base
+        let t2 = Point3::new(
+            matrix_points.tibia.0 as f32,
+            matrix_points.tibia.1 as f32,
+            matrix_points.tibia.2 as f32,
+        );
+        let e1 = t2; // End base
+        let e2 = Point3::new(
+            matrix_points.end.0 as f32,
+            matrix_points.end.1 as f32,
+            matrix_points.end.2 as f32,
+        );
+
+        return (c1, c2, f1, f2, t1, t2, e1, e2);
     }
 
 }
